@@ -6,53 +6,68 @@ const todoControl = document.querySelector('.todo-control'),
       todoCompleted = document.querySelector('.todo-completed');
      
 
-const todoData = [];
+let todoData = [];
 
-let json, jsonparse, arr;
-
-const render = function() {
-
-    jsonparse = localStorage.getItem('value');
-    arr = JSON.parse(jsonparse);
-
+//checked  for emptiness localStorage
+if (localStorage.getItem('todo')) {
+    todoData = JSON.parse(localStorage.getItem('todo'));
+    render();
+}
+//output on screen
+function render() {
     todoList.textContent = '';
     todoCompleted.textContent = '';
     
-    arr.forEach(function(item){
+    todoData.forEach(function(item){
         const li = document.createElement('li');
-        console.log();
+
         li.classList.add('todo-item');
 
-        li.innerHTML = '<span class="text-todo">' + item.value + '</span>' + 
-        '<div class="todo-buttons">' +
-            '<button class="todo-remove"></button>' +
-		    '<button class="todo-complete"></button>' +
-        '</div>';
+        li.innerHTML = `<span class="text-todo">${item.value}</span>  
+        <div class="todo-buttons"> 
+            <button class="todo-remove"></button> 
+		    <button class="todo-complete"></button> 
+        </div>`;
         
-        if (item.completed) {
-            todoCompleted.append(li);
-        } else {
-            todoList.append(li);
+        if (item.value !=='') {
+            if (item.completed) {
+                todoCompleted.append(li);
+            } else {
+                todoList.append(li);
+                headerInput.value = '';
+            }
         }
 
         const btnTodoComplete = li.querySelector('.todo-complete');
 
+//changes the status of the case
         btnTodoComplete.addEventListener('click', function(){
             item.completed = !item.completed;
+            localStorage.setItem('todo', JSON.stringify(todoData));
             render();
         });
 
-        // const btnTodoRemove = li.querySelector('.todo-remove');
 
-        // btnTodoRemove.addEventListener('click', function(){
-            
-           
-        //     render();
-        // });
+        const btnTodoRemove = li.querySelector('.todo-remove');
+
+//deleted the case
+        btnTodoRemove.addEventListener('click', function(){
+        
+            let i = todoData.indexOf(item);
+
+            if(i >= 0) {
+                todoData.splice(i,1);
+            }
+
+            localStorage.setItem('todo', JSON.stringify(todoData));
+
+            render();
+        });
     });
     
 };
 
+//add the case
 todoControl.addEventListener('submit', function(event){
     event.preventDefault();
     if (headerInput.value === '') {
@@ -63,20 +78,12 @@ todoControl.addEventListener('submit', function(event){
             completed: false
         };
         todoData.push(newTodo);
-
         headerInput.value = '';
 
-        json = JSON.stringify(todoData);
-        localStorage.setItem('value', json);
+        localStorage.setItem('todo', JSON.stringify(todoData));
         
         render();
     }
 });
-
-
-
-    
-      
-
 
 render();
